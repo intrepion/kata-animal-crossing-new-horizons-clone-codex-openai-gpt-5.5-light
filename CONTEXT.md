@@ -36,6 +36,18 @@ _Avoid_: Collection upload, unlock
 An island action that depends on equipping the right tool, such as fishing with a rod, catching bugs with a net, mining rocks with a shovel, or chopping trees with an axe.
 _Avoid_: Click action, generic interact
 
+**Equipped Tool**:
+The active tool that gives the player's next valid interaction its first meaning, before generic nearby interactions are considered.
+_Avoid_: Selected item, active mode
+
+**Tool Wheel**:
+A compact in-world control for switching the Equipped Tool without leaving the island view.
+_Avoid_: Toolbar, menu, loadout
+
+**Creature Catch**:
+A fish or bug capture that requires a small timing, range, or angle action rather than an instant pickup.
+_Avoid_: Pickup, loot drop
+
 **Bells**:
 The island currency earned mostly by selling gathered items, creatures, and materials.
 _Avoid_: Coins, money, points
@@ -43,3 +55,7 @@ _Avoid_: Coins, money, points
 **Pocket**:
 The player's limited carried inventory for resources, creatures, tools, and placeable items.
 _Avoid_: Bag, inventory grid
+
+**Island Save**:
+The persisted local record of the player's Pocket, Bells, museum donations, NookPhone Task progress, placed items, and Starter Loan progress.
+_Avoid_: Save slot, checkpoint, run state
