@@ -6,14 +6,16 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc && vite build",
-    "test": "vitest run",
+    "test": "vitest run tests",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
-    "check": "npm run test && npm run build"
+    "check": "npm run test && npm run build && npm run test:e2e"
   },
   "dependencies": {
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.5.2",
     "@types/three": "^0.180.0",
     "typescript": "^5.9.2",

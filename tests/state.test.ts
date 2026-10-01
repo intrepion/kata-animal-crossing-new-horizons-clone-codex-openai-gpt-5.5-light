@@ -60,6 +60,8 @@ describe("Island State", () => {
     craftItem(state, "rod");
     addItem(state, "branches", 2);
     craftItem(state, "net");
+    craftItem(state, "stool");
+    placeItem(state, "stool", 1, 1);
     state.bells = 1500;
 
     expect(repayLoan(state, 1200)).toBe(1200);

@@ -88,6 +88,8 @@ let muted = false;
 let activeTarget: Interactable | undefined;
 let noticeTimer = 0;
 let audioContext: AudioContext | undefined;
+let ambientGain: GainNode | undefined;
+let forceCatchSuccess = false;
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -158,6 +160,9 @@ motionButton.addEventListener("click", () => {
 muteButton.addEventListener("click", () => {
   muted = !muted;
   muteButton.textContent = `Audio: ${muted ? "off" : "on"}`;
+  if (ambientGain) {
+    ambientGain.gain.value = muted ? 0 : 0.018;
+  }
 });
 
 newIslandButton.addEventListener("click", () => {
@@ -169,6 +174,31 @@ newIslandButton.addEventListener("click", () => {
 });
 
 requestAnimationFrame(tick);
+
+if (import.meta.env.DEV) {
+  window.harborSproutTest = {
+    goTo(id: string): void {
+      const target = interactables.find((item) => item.id === id || item.label === id);
+      if (!target) {
+        throw new Error(`Unknown target ${id}`);
+      }
+      avatarPosition = { x: target.x, z: target.z + Math.min(0.6, target.radius) };
+      avatar.position.set(avatarPosition.x, 0, avatarPosition.z);
+      updatePrompt();
+    },
+    interact,
+    placeDecoration,
+    setTool(tool): void {
+      state.equippedTool = tool;
+      updateHud();
+      updatePrompt();
+    },
+    snapshot: () => serializeIslandState(state),
+    forceCatchSuccess(value: boolean): void {
+      forceCatchSuccess = value;
+    },
+  };
+}
 
 function requireElement<T extends HTMLElement>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -380,7 +410,7 @@ function catchCreature(creatureId: keyof typeof creatures | undefined, neededToo
     playCue("warn");
     return;
   }
-  const softFail = Math.random() < 0.18;
+  const softFail = !forceCatchSuccess && Math.random() < 0.18;
   if (softFail) {
     showNotice("Almost. The timing was a little early.");
     playCue("warn");
@@ -421,7 +451,7 @@ function sellPocketGoods(): void {
 }
 
 function craftNextUsefulItem(): void {
-  const craftOrder: Array<keyof typeof recipes> = ["rod", "net", "axe", "shovel", "stool", "flowerBox"];
+  const craftOrder: Array<keyof typeof recipes> = ["rod", "net", "stool", "flowerBox", "axe", "shovel"];
   const recipeId = craftOrder.find((id) => itemCount(state, id) === 0 && craftItem(state, id));
   if (recipeId) {
     showNotice(`Crafted ${recipes[recipeId].label}.`);
@@ -481,6 +511,7 @@ function loadState(): IslandState {
 function playCue(kind: "gather" | "catch" | "craft" | "donate" | "sell" | "talk" | "warn" | "complete"): void {
   if (muted) return;
   audioContext ??= new AudioContext();
+  startAmbientLoop();
   const frequencies: Record<typeof kind, number> = {
     gather: 420,
     catch: 640,
@@ -501,6 +532,23 @@ function playCue(kind: "gather" | "catch" | "craft" | "donate" | "sell" | "talk"
   oscillator.connect(gain).connect(audioContext.destination);
   oscillator.start();
   oscillator.stop(audioContext.currentTime + 0.2);
+}
+
+function startAmbientLoop(): void {
+  if (!audioContext || ambientGain) return;
+  ambientGain = audioContext.createGain();
+  ambientGain.gain.value = 0.018;
+  const low = audioContext.createOscillator();
+  const high = audioContext.createOscillator();
+  low.frequency.value = 174;
+  high.frequency.value = 261.63;
+  low.type = "sine";
+  high.type = "triangle";
+  low.connect(ambientGain);
+  high.connect(ambientGain);
+  ambientGain.connect(audioContext.destination);
+  low.start();
+  high.start();
 }
 
 function addLandmark(label: string, x: number, z: number, radius: number, color: number): void {
@@ -567,7 +615,7 @@ function addTree(x: number, z: number): void {
   leaves.castShadow = true;
   scene.add(leaves);
   colliders.push({ x, z, radius: 0.82 });
-  interactables.push({ id: `tree-${x}`, label: "Grove Tree", kind: "resource", action: "Shake", x, z, radius: 1 });
+  interactables.push({ id: "branches", label: "Grove Tree", kind: "resource", action: "Shake", x, z, radius: 1 });
 }
 
 function addRock(x: number, z: number): void {
@@ -580,7 +628,7 @@ function addRock(x: number, z: number): void {
   rock.castShadow = true;
   scene.add(rock);
   colliders.push({ x, z, radius: 0.75 });
-  interactables.push({ id: `rock-${x}`, label: "Rock Garden", kind: "resource", action: "Mine", requiredTool: "shovel", x, z, radius: 1 });
+  interactables.push({ id: "stone", label: "Rock Garden", kind: "resource", action: "Mine", requiredTool: "shovel", x, z, radius: 1 });
 }
 
 function addWater(label: string, x: number, z: number, rx: number, rz: number): void {

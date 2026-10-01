@@ -168,7 +168,12 @@ export function repayLoan(state: IslandState, amount: number): number {
   state.bells -= payment;
   state.loanPaid += payment;
   state.taskProgress.repayLoan = state.loanPaid;
-  if (state.loanPaid >= STARTER_LOAN && state.taskProgress.firstDonation > 0 && state.taskProgress.craftTools >= 2) {
+  if (
+    state.loanPaid >= STARTER_LOAN &&
+    state.taskProgress.firstDonation > 0 &&
+    state.taskProgress.craftTools >= 2 &&
+    state.taskProgress.decorateIsland > 0
+  ) {
     state.completed = true;
     state.dayPhase = "evening";
   }
