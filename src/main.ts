@@ -1,7 +1,22 @@
 import "./styles.css";
 import * as THREE from "three";
-import { creatures, POCKET_LIMIT, resources, tools } from "./data";
-import { createIslandState, currentTask, IslandState, pocketCount } from "./state";
+import { creatures, ItemId, PlaceableId, POCKET_LIMIT, recipes, resources, tools } from "./data";
+import {
+  addItem,
+  craftItem,
+  createIslandState,
+  currentTask,
+  donateCreature,
+  hydrateIslandState,
+  IslandState,
+  itemCount,
+  placeItem,
+  pocketCount,
+  repayLoan,
+  sellItem,
+  serializeIslandState,
+  talkToVillager,
+} from "./state";
 import {
   Collider,
   findInteractionTarget,
@@ -42,9 +57,11 @@ app.innerHTML = `
     <div id="world-prompt" class="world-prompt" hidden></div>
     <section class="notice" id="notice">
       <strong>Harbor Sprout</strong>
-      <span>WASD/Arrows move · Drag to orbit · 1-5 tools · E interact</span>
+      <span>WASD/Arrows move · Drag to orbit · 1-5 tools · E interact · P place</span>
     </section>
+    <section class="pocket-panel" id="pocket-panel" aria-label="Pocket contents"></section>
     <div class="controls">
+      <button id="mute-toggle" type="button">Audio: on</button>
       <button id="motion-toggle" type="button">Reduced motion: off</button>
       <button id="new-island" type="button">New Island</button>
     </div>
@@ -58,15 +75,19 @@ const toolEl = requireElement<HTMLElement>("#hud-tool");
 const pocketEl = requireElement<HTMLElement>("#hud-pocket");
 const bellsEl = requireElement<HTMLElement>("#hud-bells");
 const taskEl = requireElement<HTMLElement>("#hud-task");
+const pocketPanel = requireElement<HTMLElement>("#pocket-panel");
+const muteButton = requireElement<HTMLButtonElement>("#mute-toggle");
 const motionButton = requireElement<HTMLButtonElement>("#motion-toggle");
 const newIslandButton = requireElement<HTMLButtonElement>("#new-island");
 
-let state: IslandState = createIslandState();
+let state: IslandState = loadState();
 let avatarPosition: Vec2 = { x: 0, z: 2.5 };
 let cameraYaw = -0.45;
 let reducedMotion = false;
+let muted = false;
 let activeTarget: Interactable | undefined;
 let noticeTimer = 0;
+let audioContext: AudioContext | undefined;
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -85,6 +106,9 @@ const interactables: Interactable[] = [];
 const toolKeys = ["hands", "rod", "net", "axe", "shovel"] as const;
 
 buildScene();
+for (const placed of state.placedItems) {
+  addPlacedDecoration(placed.id, placed.x, placed.z);
+}
 updateHud();
 resize();
 showNotice("Morning ferry landed. Meet neighbors, gather materials, and make the island yours.");
@@ -103,6 +127,9 @@ window.addEventListener("keydown", (event) => {
   }
   if (event.key.toLowerCase() === "e") {
     interact();
+  }
+  if (event.key.toLowerCase() === "p") {
+    placeDecoration();
   }
 });
 window.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
@@ -126,6 +153,11 @@ canvas.addEventListener("pointerup", () => {
 motionButton.addEventListener("click", () => {
   reducedMotion = !reducedMotion;
   motionButton.textContent = `Reduced motion: ${reducedMotion ? "on" : "off"}`;
+});
+
+muteButton.addEventListener("click", () => {
+  muted = !muted;
+  muteButton.textContent = `Audio: ${muted ? "off" : "on"}`;
 });
 
 newIslandButton.addEventListener("click", () => {
@@ -273,19 +305,38 @@ function updatePrompt(): void {
 function interact(): void {
   if (!activeTarget) {
     showNotice("Nothing nearby is ready for that tool.");
+    playCue("warn");
     return;
   }
   if (activeTarget.kind === "villager") {
+    talkToVillager(state, activeTarget.id);
     showNotice(`${activeTarget.label}: The island already feels brighter with you here.`);
+    playCue("talk");
   } else if (activeTarget.kind === "resource") {
-    showNotice(`Gathered ${activeTarget.label}.`);
+    gather(activeTarget);
   } else if (activeTarget.kind === "water") {
-    showNotice(state.equippedTool === "rod" ? `The water ripples near ${activeTarget.label}.` : "Equip the rod to fish here.");
+    catchCreature(state.equippedTool === "rod" ? "reefMinnow" : undefined, "rod");
   } else if (activeTarget.kind === "bug") {
-    showNotice(state.equippedTool === "net" ? `You line up the net near ${activeTarget.label}.` : "Equip the net to catch bugs.");
+    catchCreature(state.equippedTool === "net" ? "sunwing" : undefined, "net");
+  } else if (activeTarget.kind === "museum") {
+    donateFirstCreature();
+  } else if (activeTarget.kind === "shop") {
+    sellPocketGoods();
+  } else if (activeTarget.kind === "crafting") {
+    craftNextUsefulItem();
+  } else if (activeTarget.kind === "home") {
+    const paid = repayLoan(state, state.bells);
+    showNotice(paid > 0 ? `Paid ${paid} Bells toward the starter loan.` : "Earn a few Bells before making another loan payment.");
+    playCue(paid > 0 ? "sell" : "warn");
   } else {
     showNotice(`${activeTarget.action} at ${activeTarget.label}.`);
   }
+  if (state.completed) {
+    showNotice("Evening settles over Harbor Sprout. The starter loan is paid, the museum has a new treasure, and the island feels like yours.");
+    playCue("complete");
+  }
+  saveState();
+  updateHud();
 }
 
 function updateHud(): void {
@@ -293,6 +344,9 @@ function updateHud(): void {
   pocketEl.textContent = `${pocketCount(state)}/${POCKET_LIMIT}`;
   bellsEl.textContent = `${state.bells}`;
   taskEl.textContent = currentTask(state);
+  pocketPanel.innerHTML = state.pocket
+    .map((entry) => `<span>${labelForItem(entry.id)} × ${entry.count}</span>`)
+    .join("");
 }
 
 function showNotice(message: string): void {
@@ -307,6 +361,146 @@ function resize(): void {
   renderer.setSize(width, height, false);
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
+}
+
+function gather(target: Interactable): void {
+  const item = target.id as ItemId;
+  if (addItem(state, item)) {
+    showNotice(`Gathered ${labelForItem(item)}.`);
+    playCue("gather");
+  } else {
+    showNotice("Your Pocket is full. Sell, donate, or craft before gathering more.");
+    playCue("warn");
+  }
+}
+
+function catchCreature(creatureId: keyof typeof creatures | undefined, neededTool: string): void {
+  if (!creatureId) {
+    showNotice(`Equip the ${neededTool} first.`);
+    playCue("warn");
+    return;
+  }
+  const softFail = Math.random() < 0.18;
+  if (softFail) {
+    showNotice("Almost. The timing was a little early.");
+    playCue("warn");
+    return;
+  }
+  if (addItem(state, creatureId)) {
+    const creature = creatures[creatureId];
+    const freshness = state.donatedCreatures.has(creatureId) ? "" : " New catch.";
+    showNotice(`Caught ${creature.label}.${freshness}`);
+    playCue("catch");
+  } else {
+    showNotice("Your Pocket is full. Make room before catching more.");
+    playCue("warn");
+  }
+}
+
+function donateFirstCreature(): void {
+  const creature = state.pocket.find((entry) => entry.id in creatures && !state.donatedCreatures.has(entry.id));
+  if (!creature) {
+    showNotice("The museum is waiting for a new fish or bug.");
+    playCue("warn");
+    return;
+  }
+  donateCreature(state, creature.id);
+  showNotice(`Donated ${labelForItem(creature.id)} to the museum tent.`);
+  playCue("donate");
+}
+
+function sellPocketGoods(): void {
+  let total = 0;
+  for (const entry of [...state.pocket]) {
+    if (entry.id in resources || entry.id in creatures) {
+      total += sellItem(state, entry.id, entry.count);
+    }
+  }
+  showNotice(total > 0 ? `Sold island goods for ${total} Bells.` : "The stall buys resources, fish, and bugs.");
+  playCue(total > 0 ? "sell" : "warn");
+}
+
+function craftNextUsefulItem(): void {
+  const craftOrder: Array<keyof typeof recipes> = ["rod", "net", "axe", "shovel", "stool", "flowerBox"];
+  const recipeId = craftOrder.find((id) => itemCount(state, id) === 0 && craftItem(state, id));
+  if (recipeId) {
+    showNotice(`Crafted ${recipes[recipeId].label}.`);
+    playCue("craft");
+    return;
+  }
+  const repeatPlaceable = (["stool", "flowerBox"] as PlaceableId[]).find((id) => craftItem(state, id));
+  showNotice(repeatPlaceable ? `Crafted ${recipes[repeatPlaceable].label}.` : "Gather more materials before crafting.");
+  playCue(repeatPlaceable ? "craft" : "warn");
+}
+
+function placeDecoration(): void {
+  const placeable = state.pocket.find((entry) => entry.id === "stool" || entry.id === "flowerBox");
+  if (!placeable) {
+    showNotice("Craft a stool or flower box before placing decorations.");
+    playCue("warn");
+    return;
+  }
+  const x = avatarPosition.x + Math.sin(avatar.rotation.y) * 1.2;
+  const z = avatarPosition.z + Math.cos(avatar.rotation.y) * 1.2;
+  if (!placeItem(state, placeable.id as PlaceableId, x, z)) {
+    showNotice("That decoration could not be placed here.");
+    playCue("warn");
+    return;
+  }
+  addPlacedDecoration(placeable.id as PlaceableId, x, z);
+  showNotice(`Placed ${labelForItem(placeable.id)}.`);
+  playCue("craft");
+  saveState();
+  updateHud();
+}
+
+function labelForItem(id: ItemId): string {
+  if (id in resources) return resources[id as keyof typeof resources].label;
+  if (id in creatures) return creatures[id as keyof typeof creatures].label;
+  if (id in tools) return tools[id as keyof typeof tools].label;
+  return recipes[id as keyof typeof recipes].label;
+}
+
+function saveState(): void {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(serializeIslandState(state)));
+}
+
+function loadState(): IslandState {
+  const saved = localStorage.getItem(SAVE_KEY);
+  if (!saved) {
+    return createIslandState();
+  }
+  try {
+    return hydrateIslandState(JSON.parse(saved));
+  } catch {
+    localStorage.removeItem(SAVE_KEY);
+    return createIslandState();
+  }
+}
+
+function playCue(kind: "gather" | "catch" | "craft" | "donate" | "sell" | "talk" | "warn" | "complete"): void {
+  if (muted) return;
+  audioContext ??= new AudioContext();
+  const frequencies: Record<typeof kind, number> = {
+    gather: 420,
+    catch: 640,
+    craft: 520,
+    donate: 720,
+    sell: 580,
+    talk: 360,
+    warn: 180,
+    complete: 880,
+  };
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.frequency.value = frequencies[kind];
+  oscillator.type = kind === "warn" ? "square" : "sine";
+  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.18);
+  oscillator.connect(gain).connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.2);
 }
 
 function addLandmark(label: string, x: number, z: number, radius: number, color: number): void {
@@ -421,6 +615,17 @@ function addCreature(label: string, id: keyof typeof creatures, x: number, z: nu
   bug.position.set(x, 0.45, z);
   scene.add(bug);
   interactables.push({ id, label, kind: "bug", action: "Catch", requiredTool: "net", x, z, radius: 0.7 });
+}
+
+function addPlacedDecoration(id: PlaceableId, x: number, z: number): void {
+  const mesh = new THREE.Mesh(
+    id === "stool" ? new THREE.CylinderGeometry(0.36, 0.42, 0.42, 12) : new THREE.BoxGeometry(0.78, 0.36, 0.32),
+    new THREE.MeshStandardMaterial({ color: id === "stool" ? 0xd8a45f : 0xf58ab4, roughness: 0.82 }),
+  );
+  mesh.position.set(x, 0.22, z);
+  mesh.castShadow = true;
+  scene.add(mesh);
+  colliders.push({ x, z, radius: 0.42 });
 }
 
 function addLabel(label: string, x: number, z: number, offset: number): void {
