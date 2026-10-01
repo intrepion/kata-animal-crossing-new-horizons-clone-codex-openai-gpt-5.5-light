@@ -16,6 +16,10 @@ _Avoid_: Economy loop, task grind, checklist
 A small dense place with a plaza, player home, shore, river or pond, trees, rocks, museum tent, shop stall, villagers, and enough nearby affordances to reward wandering.
 _Avoid_: Map, level, board
 
+**Landmark**:
+A named physical island area that gives one or more core verbs a home, such as the plaza, player home, beach, river or pond, grove, rock garden, museum tent, shop stall, crafting stump, or villager yard.
+_Avoid_: Zone, biome, point of interest
+
 **Island Style**:
 The game's low-poly toy-like visual language with rounded forms, readable silhouettes, bright materials, and soft shadows.
 _Avoid_: Nintendo replica, realistic style, generic low poly
@@ -27,6 +31,10 @@ _Avoid_: NPC, mob, quest giver
 **NookPhone Task**:
 A lightweight in-world goal that nudges the player toward island life verbs without turning the game into a mission checklist.
 _Avoid_: Quest, achievement, objective
+
+**Current Task**:
+The single NookPhone Task surfaced in the main HUD so the player always has a gentle next step without opening a menu.
+_Avoid_: Active quest, mission tracker
 
 **Recipe Book**:
 The small set of craftable items unlocked through NookPhone Tasks during the Island Day.
@@ -64,6 +72,10 @@ _Avoid_: Rare drop, collectible unlock
 Lightweight resistance that creates texture without punishing the player, such as failed catches or short resource cooldowns.
 _Avoid_: Durability grind, failure state, penalty
 
+**World Prompt**:
+A subtle world-space hint attached to the current target that tells the player what pressing interact will do.
+_Avoid_: Tooltip, instruction label, hover text
+
 **Bells**:
 The island currency earned mostly by selling gathered items, creatures, and materials.
 _Avoid_: Coins, money, points
@@ -75,6 +87,14 @@ _Avoid_: Bag, inventory grid
 **Island Save**:
 The persisted local record of the player's Pocket, Bells, museum donations, NookPhone Task progress, placed items, and Starter Loan progress.
 _Avoid_: Save slot, checkpoint, run state
+
+**Placeable**:
+A crafted or earned decoration that can be placed on the island, persists in the Island Save, and lightly affects movement through collision.
+_Avoid_: Cosmetic, prop, furniture record
+
+**Accessibility Baseline**:
+The minimum usability promise for the island: keyboard-only play, documented keys, reduced-motion support, readable contrast, and no audio-only cues.
+_Avoid_: Accessibility mode, optional polish
 
 **Evening Wrap-Up**:
 The cozy closing moment for a completed Island Day after the player repays the Starter Loan milestone and proves the core loop.
