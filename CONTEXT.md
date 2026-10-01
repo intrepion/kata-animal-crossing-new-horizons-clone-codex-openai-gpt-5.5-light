@@ -72,6 +72,18 @@ _Avoid_: Rare drop, collectible unlock
 Lightweight resistance that creates texture without punishing the player, such as failed catches or short resource cooldowns.
 _Avoid_: Durability grind, failure state, penalty
 
+**Island State**:
+The single authoritative gameplay record for position, Pocket contents, Bells, donations, tasks, recipes, placed items, resource cooldowns, and day progress.
+_Avoid_: Scene state, object state, local component state
+
+**Content Table**:
+Plain structured game data for resources, recipes, creatures, tasks, dialogue, prices, and landmark metadata.
+_Avoid_: Hardcoded branch, content script, config blob
+
+**Forgiving Collision**:
+Simple circle or box collision with generous interaction radii that keeps movement readable without pretending the low-poly meshes are physically exact.
+_Avoid_: Mesh collision, physics simulation, pixel-perfect collision
+
 **World Prompt**:
 A subtle world-space hint attached to the current target that tells the player what pressing interact will do.
 _Avoid_: Tooltip, instruction label, hover text
@@ -95,6 +107,10 @@ _Avoid_: Cosmetic, prop, furniture record
 **Accessibility Baseline**:
 The minimum usability promise for the island: keyboard-only play, documented keys, reduced-motion support, readable contrast, and no audio-only cues.
 _Avoid_: Accessibility mode, optional polish
+
+**Core Play Smoke**:
+The browser verification path that proves the island loads, renders nonblank, moves the avatar, uses a tool, sells or donates, crafts, updates NookPhone and Starter Loan progress, and stays free of application console errors.
+_Avoid_: Build check, syntax check, screenshot only
 
 **Evening Wrap-Up**:
 The cozy closing moment for a completed Island Day after the player repays the Starter Loan milestone and proves the core loop.
