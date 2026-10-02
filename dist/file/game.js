@@ -26213,6 +26213,14 @@ void main() {
   function distance(a, b) {
     return Math.hypot(a.x - b.x, a.z - b.z);
   }
+  function cameraRelativeDelta(input, cameraYaw2, speed) {
+    const forward = { x: Math.sin(cameraYaw2), z: Math.cos(cameraYaw2) };
+    const right = { x: Math.cos(cameraYaw2), z: -Math.sin(cameraYaw2) };
+    return {
+      x: (right.x * input.x + forward.x * input.z) * speed,
+      z: (right.z * input.x + forward.z * input.z) * speed
+    };
+  }
   function moveWithCollision(position, delta, colliders2) {
     const next = { x: position.x + delta.x, z: position.z + delta.z };
     const blocked = colliders2.some((collider) => distance(next, collider) < collider.radius);
@@ -26457,8 +26465,8 @@ void main() {
   }
   function updateMovement(dt) {
     const input = { x: 0, z: 0 };
-    if (keys.has("w") || keys.has("arrowup")) input.z -= 1;
-    if (keys.has("s") || keys.has("arrowdown")) input.z += 1;
+    if (keys.has("w") || keys.has("arrowup")) input.z += 1;
+    if (keys.has("s") || keys.has("arrowdown")) input.z -= 1;
     if (keys.has("a") || keys.has("arrowleft")) input.x -= 1;
     if (keys.has("d") || keys.has("arrowright")) input.x += 1;
     const length = Math.hypot(input.x, input.z);
@@ -26466,12 +26474,7 @@ void main() {
       input.x /= length;
       input.z /= length;
       const speed = 4.6 * dt;
-      const forward = new Vector3(Math.sin(cameraYaw), 0, Math.cos(cameraYaw));
-      const right = new Vector3(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw));
-      const delta = {
-        x: (right.x * input.x - forward.x * input.z) * speed,
-        z: (right.z * input.x - forward.z * input.z) * speed
-      };
+      const delta = cameraRelativeDelta(input, cameraYaw, speed);
       avatarPosition = moveWithCollision(avatarPosition, delta, colliders);
       avatar.rotation.y = Math.atan2(delta.x, delta.z);
     }

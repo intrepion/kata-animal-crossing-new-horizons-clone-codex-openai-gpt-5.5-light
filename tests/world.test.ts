@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findInteractionTarget, moveWithCollision } from "../src/world";
+import { cameraRelativeDelta, findInteractionTarget, moveWithCollision } from "../src/world";
 
 describe("Forgiving Collision and World Prompt targeting", () => {
   it("keeps movement outside simple shape colliders", () => {
@@ -26,5 +26,10 @@ describe("Forgiving Collision and World Prompt targeting", () => {
     ]);
 
     expect(target?.id).toBe("pond");
+  });
+
+  it("maps up and down controls to camera forward and backward", () => {
+    expect(cameraRelativeDelta({ x: 0, z: 1 }, 0, 2)).toEqual({ x: 0, z: 2 });
+    expect(cameraRelativeDelta({ x: 0, z: -1 }, 0, 2)).toEqual({ x: 0, z: -2 });
   });
 });

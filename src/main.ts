@@ -21,6 +21,7 @@ import {
   Collider,
   findInteractionTarget,
   Interactable,
+  cameraRelativeDelta,
   moveWithCollision,
   Vec2,
 } from "./world";
@@ -284,8 +285,8 @@ function tick(): void {
 
 function updateMovement(dt: number): void {
   const input = { x: 0, z: 0 };
-  if (keys.has("w") || keys.has("arrowup")) input.z -= 1;
-  if (keys.has("s") || keys.has("arrowdown")) input.z += 1;
+  if (keys.has("w") || keys.has("arrowup")) input.z += 1;
+  if (keys.has("s") || keys.has("arrowdown")) input.z -= 1;
   if (keys.has("a") || keys.has("arrowleft")) input.x -= 1;
   if (keys.has("d") || keys.has("arrowright")) input.x += 1;
   const length = Math.hypot(input.x, input.z);
@@ -293,12 +294,7 @@ function updateMovement(dt: number): void {
     input.x /= length;
     input.z /= length;
     const speed = 4.6 * dt;
-    const forward = new THREE.Vector3(Math.sin(cameraYaw), 0, Math.cos(cameraYaw));
-    const right = new THREE.Vector3(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw));
-    const delta = {
-      x: (right.x * input.x - forward.x * input.z) * speed,
-      z: (right.z * input.x - forward.z * input.z) * speed,
-    };
+    const delta = cameraRelativeDelta(input, cameraYaw, speed);
     avatarPosition = moveWithCollision(avatarPosition, delta, colliders);
     avatar.rotation.y = Math.atan2(delta.x, delta.z);
   }
