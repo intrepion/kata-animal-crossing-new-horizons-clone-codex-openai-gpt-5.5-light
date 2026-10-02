@@ -175,30 +175,28 @@ newIslandButton.addEventListener("click", () => {
 
 requestAnimationFrame(tick);
 
-if (import.meta.env.DEV) {
-  window.harborSproutTest = {
-    goTo(id: string): void {
-      const target = interactables.find((item) => item.id === id || item.label === id);
-      if (!target) {
-        throw new Error(`Unknown target ${id}`);
-      }
-      avatarPosition = { x: target.x, z: target.z + Math.min(0.6, target.radius) };
-      avatar.position.set(avatarPosition.x, 0, avatarPosition.z);
-      updatePrompt();
-    },
-    interact,
-    placeDecoration,
-    setTool(tool): void {
-      state.equippedTool = tool;
-      updateHud();
-      updatePrompt();
-    },
-    snapshot: () => serializeIslandState(state),
-    forceCatchSuccess(value: boolean): void {
-      forceCatchSuccess = value;
-    },
-  };
-}
+window.harborSproutTest = {
+  goTo(id: string): void {
+    const target = interactables.find((item) => item.id === id || item.label === id);
+    if (!target) {
+      throw new Error(`Unknown target ${id}`);
+    }
+    avatarPosition = { x: target.x, z: target.z + Math.min(0.6, target.radius) };
+    avatar.position.set(avatarPosition.x, 0, avatarPosition.z);
+    updatePrompt();
+  },
+  interact,
+  placeDecoration,
+  setTool(tool): void {
+    state.equippedTool = tool;
+    updateHud();
+    updatePrompt();
+  },
+  snapshot: () => serializeIslandState(state),
+  forceCatchSuccess(value: boolean): void {
+    forceCatchSuccess = value;
+  },
+};
 
 function requireElement<T extends HTMLElement>(selector: string): T {
   const element = document.querySelector<T>(selector);

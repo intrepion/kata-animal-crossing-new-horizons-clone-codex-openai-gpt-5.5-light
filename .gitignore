@@ -1,4 +1,8 @@
 dist/
+!dist/
+dist/index.html
+dist/assets/
+!dist/file/
 node_modules/
 test-results/
 .DS_Store

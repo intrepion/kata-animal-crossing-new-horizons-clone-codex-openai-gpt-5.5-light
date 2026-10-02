@@ -4,12 +4,14 @@ Harbor Sprout is an original browser island-life game inspired by the feel and l
 
 ## Play
 
+Open `index.html` directly in a browser, or run the local dev server:
+
 ```bash
 npm install
 npm run dev
 ```
 
-Open the printed local URL, usually `http://127.0.0.1:5173`.
+The dev server prints a local URL, usually `http://127.0.0.1:5173`.
 
 ## Controls
 

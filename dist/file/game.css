@@ -1,0 +1,163 @@
+/* src/styles.css */
+:root {
+  color: #182018;
+  background: #86d6df;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+button,
+input {
+  font: inherit;
+}
+.game-shell {
+  height: 100vh;
+  isolation: isolate;
+  position: relative;
+  width: 100vw;
+}
+#island-canvas {
+  display: block;
+  height: 100%;
+  outline: none;
+  width: 100%;
+}
+.hud {
+  align-items: stretch;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(4, minmax(0, auto));
+  left: 1rem;
+  max-width: calc(100vw - 2rem);
+  position: absolute;
+  top: 1rem;
+  z-index: 5;
+}
+.hud > div,
+.notice,
+.world-prompt,
+.controls button {
+  background: rgba(255, 253, 235, 0.9);
+  border: 2px solid rgba(24, 32, 24, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 0.75rem 2rem rgba(28, 74, 76, 0.14);
+}
+.hud > div {
+  min-width: 6rem;
+  padding: 0.65rem 0.75rem;
+}
+.hud .task {
+  min-width: min(22rem, 48vw);
+}
+.label {
+  color: #48614f;
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+strong {
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.15;
+}
+.world-prompt {
+  bottom: 7.2rem;
+  font-weight: 800;
+  left: 50%;
+  padding: 0.7rem 1rem;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 6;
+}
+.notice {
+  bottom: 1rem;
+  display: grid;
+  gap: 0.25rem;
+  left: 1rem;
+  max-width: min(34rem, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  position: absolute;
+  z-index: 5;
+}
+.pocket-panel {
+  align-content: start;
+  bottom: 5.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  left: 1rem;
+  max-width: min(34rem, calc(100vw - 2rem));
+  position: absolute;
+  z-index: 5;
+}
+.pocket-panel span {
+  background: rgba(24, 32, 24, 0.68);
+  border-radius: 999px;
+  color: #fffdeb;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.4rem 0.55rem;
+}
+.notice span {
+  color: #405246;
+  line-height: 1.35;
+}
+.notice.is-loud {
+  border-color: rgba(41, 128, 86, 0.55);
+}
+.controls {
+  bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  position: absolute;
+  right: 1rem;
+  z-index: 5;
+}
+.controls button {
+  color: #182018;
+  cursor: pointer;
+  font-weight: 800;
+  min-height: 2.7rem;
+  padding: 0 0.85rem;
+}
+.controls button:focus-visible {
+  outline: 3px solid #174b8f;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .hud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hud .task {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .controls {
+    bottom: auto;
+    left: 1rem;
+    right: auto;
+    top: 9.8rem;
+  }
+  .notice {
+    font-size: 0.9rem;
+  }
+}
