@@ -26214,7 +26214,7 @@ void main() {
     return Math.hypot(a.x - b.x, a.z - b.z);
   }
   function cameraRelativeDelta(input, cameraYaw2, speed) {
-    const forward = { x: Math.sin(cameraYaw2), z: Math.cos(cameraYaw2) };
+    const forward = { x: -Math.sin(cameraYaw2), z: -Math.cos(cameraYaw2) };
     const right = { x: Math.cos(cameraYaw2), z: -Math.sin(cameraYaw2) };
     return {
       x: (right.x * input.x + forward.x * input.z) * speed,

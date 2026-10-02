@@ -33,7 +33,7 @@ export function distance(a: Vec2, b: Vec2): number {
 }
 
 export function cameraRelativeDelta(input: Vec2, cameraYaw: number, speed: number): Vec2 {
-  const forward = { x: Math.sin(cameraYaw), z: Math.cos(cameraYaw) };
+  const forward = { x: -Math.sin(cameraYaw), z: -Math.cos(cameraYaw) };
   const right = { x: Math.cos(cameraYaw), z: -Math.sin(cameraYaw) };
   return {
     x: (right.x * input.x + forward.x * input.z) * speed,

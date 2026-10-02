@@ -29,7 +29,7 @@ describe("Forgiving Collision and World Prompt targeting", () => {
   });
 
   it("maps up and down controls to camera forward and backward", () => {
-    expect(cameraRelativeDelta({ x: 0, z: 1 }, 0, 2)).toEqual({ x: 0, z: 2 });
-    expect(cameraRelativeDelta({ x: 0, z: -1 }, 0, 2)).toEqual({ x: 0, z: -2 });
+    expect(cameraRelativeDelta({ x: 0, z: 1 }, 0, 2)).toEqual({ x: 0, z: -2 });
+    expect(cameraRelativeDelta({ x: 0, z: -1 }, 0, 2)).toEqual({ x: 0, z: 2 });
   });
 });
