@@ -1,5 +1,9 @@
 # Harbor Sprout
 
+## Play online
+
+[Play Harbor Sprout](https://intrepion.github.io/kata-animal-crossing-new-horizons-clone-codex-openai-gpt-5.5-light/) — free, playable in your browser.
+
 Harbor Sprout is an original browser island-life game inspired by the feel and loop of Animal Crossing: New Horizons. It is a full-screen 3D third-person island day: wander a compact island, talk to villagers, gather materials, craft tools and decorations, catch fish and bugs, donate a new catch, sell goods for Bells, place a decoration, and repay the starter loan before the evening wrap-up.
 
 ## Play
