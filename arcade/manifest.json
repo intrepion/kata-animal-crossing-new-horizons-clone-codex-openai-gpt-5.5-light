@@ -1,6 +1,47 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-animal-crossing-new-horizons-clone-codex-openai-gpt-5.5-light",
   "playUrl": "https://intrepion.github.io/kata-animal-crossing-new-horizons-clone-codex-openai-gpt-5.5-light/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "1dc93784443695e2a3dad55ad118e2b15727b21cffdb76c9f8d0a1e264959918",
+      "alt": "Harbor Sprout gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "61e05048e60f669f6063439a333cc6b79ee6aa050f5a0bf9678f434fe27027e6",
+        "captureCommit": "eae8481389cdac191d2707ece2e996db763a53ea",
+        "workflowRunId": "41448133504",
+        "inputHashes": {
+          "index.html": "8a179acdcb1084e24610e5d2ed2daf36c62de41d9d3cfcff9af3f28bda46d77e",
+          "dist/file/game.js": "f12f0be11fc03f74e690cb2549078eac3e6042601a8d68e39cec7f8853486cce",
+          "dist/file/game.css": "d32e77acdd8860bc8c01f3293b0dee89b580e213c844d9a11076cd7c1250a221"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "bb32fd86dde880d4c6574af70b75872694efc218e8fe85dd8d78f00898741579"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "38656422fb1688ea70c13566c3a3917927cda75c88e9c72167135f88abd8f9fa",
+      "alt": "Harbor Sprout gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "b2b449e827eb1afbc389f8f3d02b71072bc80c9ea1a30a464a5f53e8d9ebb837",
+        "captureCommit": "eae8481389cdac191d2707ece2e996db763a53ea",
+        "workflowRunId": "41448133504",
+        "inputHashes": {
+          "index.html": "8a179acdcb1084e24610e5d2ed2daf36c62de41d9d3cfcff9af3f28bda46d77e",
+          "dist/file/game.js": "f12f0be11fc03f74e690cb2549078eac3e6042601a8d68e39cec7f8853486cce",
+          "dist/file/game.css": "d32e77acdd8860bc8c01f3293b0dee89b580e213c844d9a11076cd7c1250a221"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "bb32fd86dde880d4c6574af70b75872694efc218e8fe85dd8d78f00898741579"
+      }
+    }
+  ]
 }

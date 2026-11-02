@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "workflowCommit": "32ff34edcc39a9a587e4a312fdaf9b7260f54912",
+  "sourceCommit": "eae8481389cdac191d2707ece2e996db763a53ea",
+  "runId": "41448133504",
+  "url": "http://127.0.0.1:4296/",
+  "inputs": {
+    "index.html": "8a179acdcb1084e24610e5d2ed2daf36c62de41d9d3cfcff9af3f28bda46d77e",
+    "dist/file/game.js": "f12f0be11fc03f74e690cb2549078eac3e6042601a8d68e39cec7f8853486cce",
+    "dist/file/game.css": "d32e77acdd8860bc8c01f3293b0dee89b580e213c844d9a11076cd7c1250a221"
+  },
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 1280,
+    "height": 1000
+  },
+  "screenshots": [
+    "sprout-01.png",
+    "sprout-02.png"
+  ]
+}
