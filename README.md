@@ -42,3 +42,7 @@ This runs:
 - Vitest unit coverage for Island State and Forgiving Collision/World Prompt targeting.
 - TypeScript and Vite production build.
 - Playwright Core Play Smoke in Chromium: load the 3D island, confirm nonblank canvas rendering, switch tools, talk to villagers, catch fish and a bug, craft, place a decoration, donate, sell, repay the starter loan, reach the evening wrap-up, and assert no browser console errors.
+
+## Arcade metadata
+
+See [docs/arcade-metadata.md](docs/arcade-metadata.md) for the game-owned manifest and screenshot provenance.
